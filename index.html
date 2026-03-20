@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sem IV — Ego Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--bg:#0d0d0d;--bg2:#161616;--bg3:#1f1f1f;--border:#2a2a2a;--border2:#383838;--text:#f0f0f0;--text2:#888;--text3:#555;--accent:#c8ff00;--red:#ff4444;--orange:#ff9500;--green:#44cc44;--red-bg:rgba(255,68,68,0.12);--orange-bg:rgba(255,149,0,0.12);--green-bg:rgba(68,204,68,0.12);--font-mono:'Space Mono',monospace;--font-body:'DM Sans',sans-serif;--radius:10px;--radius-sm:6px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{background:var(--bg);color:var(--text);font-family:var(--font-body);}
+body{min-height:100vh;padding-bottom:2rem;}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(13,13,13,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;}
+.topbar-title{font-family:var(--font-mono);font-size:13px;color:var(--accent);letter-spacing:0.05em;}
+.topbar-score{font-family:var(--font-mono);font-size:13px;color:var(--text2);}
+.topbar-score span{color:var(--accent);font-weight:700;}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin-bottom:16px;}
+.mc{background:var(--bg2);padding:14px 12px;text-align:center;}
+.mv{font-family:var(--font-mono);font-size:22px;font-weight:700;}
+.ml{font-size:11px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;}
+.container{max-width:680px;margin:0 auto;padding:16px;}
+.section-label{font-family:var(--font-mono);font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+.ctabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.ctab{padding:6px 14px;border-radius:20px;border:1px solid var(--border2);font-size:12px;font-family:var(--font-mono);cursor:pointer;background:var(--bg2);color:var(--text2);transition:all 0.15s;letter-spacing:0.03em;}
+.ctab:hover{border-color:var(--accent);color:var(--text);}
+.ctab.active{background:var(--accent);color:#0d0d0d;border-color:var(--accent);font-weight:700;}
+.utabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.utab{padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);font-size:12px;font-family:var(--font-mono);cursor:pointer;background:var(--bg2);color:var(--text3);transition:all 0.15s;position:relative;}
+.utab:hover{border-color:var(--border2);color:var(--text2);}
+.utab.active{border-color:var(--accent);color:var(--accent);}
+.utab .pip{width:6px;height:6px;border-radius:50%;position:absolute;top:3px;right:3px;}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.panel-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px;}
+.panel-title{font-size:14px;font-weight:600;color:var(--text);line-height:1.4;flex:1;}
+.uscore{font-family:var(--font-mono);font-size:20px;font-weight:700;white-space:nowrap;}
+.pbar{height:4px;border-radius:2px;background:var(--border);margin-bottom:14px;overflow:hidden;}
+.pfill{height:100%;border-radius:2px;transition:width 0.4s cubic-bezier(0.4,0,0.2,1);}
+.stlist{display:flex;flex-direction:column;gap:4px;max-height:400px;overflow-y:auto;padding-right:2px;}
+.stlist::-webkit-scrollbar{width:3px;}
+.stlist::-webkit-scrollbar-track{background:transparent;}
+.stlist::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.strow{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);transition:border-color 0.1s;}
+.strow:hover{border-color:var(--border2);}
+.strow.done-row{border-color:rgba(68,204,68,0.2);background:rgba(68,204,68,0.04);}
+.strow.prog-row{border-color:rgba(255,149,0,0.2);background:rgba(255,149,0,0.04);}
+.stnum{font-family:var(--font-mono);font-size:10px;color:var(--text3);min-width:18px;}
+.stname{flex:1;font-size:13px;color:var(--text2);}
+.strow.done-row .stname{color:var(--text);}
+.stbtn{font-size:10px;padding:3px 9px;border-radius:10px;border:1px solid transparent;cursor:pointer;white-space:nowrap;font-family:var(--font-mono);font-weight:700;letter-spacing:0.03em;transition:all 0.1s;}
+.sn{background:var(--red-bg);color:var(--red);border-color:rgba(255,68,68,0.25);}
+.sp{background:var(--orange-bg);color:var(--orange);border-color:rgba(255,149,0,0.25);}
+.sd{background:var(--green-bg);color:var(--green);border-color:rgba(68,204,68,0.25);}
+.addrow{display:flex;gap:8px;margin-top:10px;}
+.addrow input{flex:1;padding:7px 11px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;background:var(--bg3);color:var(--text);outline:none;font-family:var(--font-body);transition:border-color 0.15s;}
+.addrow input:focus{border-color:var(--accent);}
+.addrow input::placeholder{color:var(--text3);}
+.addrow button{padding:7px 13px;border-radius:var(--radius-sm);border:1px solid var(--border2);font-size:12px;cursor:pointer;background:var(--bg3);color:var(--text2);font-family:var(--font-mono);transition:all 0.15s;}
+.addrow button:hover{border-color:var(--accent);color:var(--accent);}
+.chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.clbl{font-family:var(--font-mono);font-size:11px;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);font-family:var(--font-mono);}
+.ld{width:8px;height:8px;border-radius:2px;}
+.roast{border-radius:var(--radius);padding:12px 16px;font-size:13px;line-height:1.65;font-weight:500;border:1px solid;font-family:var(--font-mono);letter-spacing:0.01em;}
+.cinfo{font-size:12px;color:var(--text3);margin-bottom:14px;padding:0 2px;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-title">// SEM_IV.TRACKER</span>
+  <span class="topbar-score">OVERALL: <span id="overall-pct">0%</span></span>
+</div>
+<div class="metrics" id="metrics"></div>
+<div class="container">
+  <div class="section-label">Course</div>
+  <div class="ctabs" id="ctabs"></div>
+  <div class="cinfo" id="cinfo"></div>
+  <div class="section-label">Unit</div>
+  <div class="utabs" id="utabs"></div>
+  <div class="panel">
+    <div class="panel-hdr">
+      <span class="panel-title" id="ptitle">Unit</span>
+      <span class="uscore" id="uscore">0%</span>
+    </div>
+    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+    <div class="stlist" id="stlist"></div>
+    <div class="addrow">
+      <input id="newst" placeholder="Add subtopic..." maxlength="70"/>
+      <button onclick="addST()">+ ADD</button>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <div class="clbl" id="clbl">UNIT BREAKDOWN</div>
+    <div style="position:relative;height:160px;"><canvas id="ch"></canvas></div>
+    <div class="legend">
+      <div class="li"><div class="ld" style="background:#44cc44"></div>DONE</div>
+      <div class="li"><div class="ld" style="background:#ff9500"></div>IN PROGRESS</div>
+      <div class="li"><div class="ld" style="background:#ff4444"></div>NOT STARTED</div>
+    </div>
+  </div>
+  <div class="roast" id="roast"></div>
+</div>
+<script>
+const DATA={LANT:{label:'Linear Algebra & Number Theory',units:[{name:'Vector Spaces',topics:['Vector Spaces','Subspaces','Linear combinations','Linear system of equations','Linear independence','Linear dependence','Bases','Dimensions']},{name:'Linear Transformation & Diagonalization',topics:['Linear transformation','Null spaces and ranges','Dimension theorem','Matrix representation','Eigenvalues','Eigenvectors','Diagonalizability']},{name:'Inner Product Spaces',topics:['Inner product','Norms','Gram-Schmidt orthogonalization','Adjoint of linear operations','Least square approximation']},{name:'Divisibility Theory & Canonical Decompositions',topics:['Division algorithm','Base b representations','Number patterns','Prime and composite numbers','GCD','Euclidean algorithm','Fundamental theorem of arithmetic','LCM']},{name:'Diophantine Equations & Multiplicative Functions',topics:['Linear Diophantine equations','Congruences','Linear Congruences','Divisibility tests','Modular exponentiation','Chinese remainder theorem',"Wilson's theorem","Fermat's little theorem","Euler's theorem","Euler's Phi functions",'Tau and Sigma functions']}]},MPMC:{label:'Microprocessor & Microcontrollers',units:[{name:'The 8086 Microprocessor',topics:['Introduction to 8086','Microprocessor architecture','Addressing modes','Instruction set','Assembler directives','Assembly language programming','Modular Programming','Linking and Relocation','Stacks','Procedures','Macros','Interrupts and ISR','Byte and String Manipulation']},{name:'8086 System Bus Structure',topics:['8086 signals','Basic configurations','System bus timing','System design using 8086','IO programming','Introduction to Multiprogramming','System Bus Structure','Multiprocessor configurations','Coprocessor','Closely coupled configurations','Loosely coupled configurations']},{name:'8051 Microcontrollers',topics:['Microprocessor vs Microcontroller','Architecture of 8051','Special Function Registers (SFRs)','I/O Pins Ports and Circuits','Instruction set of 8051','Addressing modes of 8051','Assembly language programming for 8051']},{name:'Interfacing & Programming 8051',topics:['Programming 8051 using SFRs','Timers','Serial Port Programming','Interrupts Programming','LCD Interfacing','Keyboard Interfacing','ADC Interfacing','DAC Interfacing','Sensor Interfacing','External Memory Interface','Stepper Motor','Waveform generation']},{name:'Advanced Processors & System Design',topics:['Advanced processors overview','Advanced microcontrollers','Introduction to FPGA','RISC vs CISC','Traffic light control case study','Washing machine control','Temperature control system']}]},DAA:{label:'Design & Analysis of Algorithms',units:[{name:'Introduction',topics:['Notion of an Algorithm','Fundamentals of Problem Solving','Important Problem Types','Algorithmic Efficiency Analysis','Asymptotic Notations','Analysis Framework','Empirical analysis','Mathematical analysis - Recursive','Mathematical analysis - Non-recursive',"Master's Theorem"]},{name:'Brute Force & Graph Algorithms',topics:['Brute Force technique','Computation of a^n','String Matching','Closest-Pair Problem','Convex-Hull Problem','Exhaustive Search','TSP - Brute Force','Knapsack - Brute Force','Assignment problem','Graph Representations','MST - Kruskal','MST - Prim','Bellman-Ford','Dijkstra','Floyd-Warshall']},{name:'Algorithm Design Techniques',topics:['Divide and Conquer','Finding max and min','Merge sort','Quick sort','DP - Principle of Optimality','Elements of dynamic programming','Matrix-chain multiplication','Multi stage graph','Optimal Binary Search Trees','Greedy Technique','Activity-selection problem','Optimal Merge pattern','Huffman Trees']},{name:'State Space Search Algorithms',topics:['Backtracking concept','n-Queens problem','Hamiltonian Circuit Problem','Subset Sum Problem','Graph colouring problem','Branch and Bound concept','15-Puzzle problem','Assignment problem - B&B','Knapsack - B&B','TSP - B&B']},{name:'NP-Complete & Approximation Algorithms',topics:['Tractable vs intractable problems','Polynomial time algorithms','Venn diagram representation','Lower Bound arguments','NP-algorithms','NP-hardness','NP-completeness','SAT problem','Approximation Algorithms','TSP approximation','Knapsack approximation']}]},OOSE:{label:'Object Oriented Software Engineering',units:[{name:'Software Engineering Principles & Models',topics:['Overview of Software Engineering','SDLC - Waterfall Model','SDLC - Incremental Model','SDLC - Spiral Model','SDLC - V-Model','Agile Software Development','Lean Software Development','Modularity','Reusability','Maintainability and Scalability']},{name:'Agile Software Development',topics:['Agile Manifesto and Principles','Scrum - Roles','Scrum - Artifacts','Scrum - Events','Kanban','Lean Software Development','Extreme Programming (XP)','TDD','Pair Programming','Agile Estimation Techniques','Story Points','Planning Poker','Velocity','Burn-down and Burn-up Charts','Agile Sprint simulation']},{name:'Requirements Modeling Using UML',topics:['Requirement Elicitation','SRS Document','Introduction to UML','Use Case Diagrams','Class Diagrams','Object Diagrams','Sequence Diagrams','Activity Diagrams','State Machine Diagrams','UML Modeling Tools']},{name:'Software Design Patterns Using Java',topics:['SOLID Principles','Overview of Design Patterns','Singleton Pattern','Factory Method Pattern','Adapter Pattern','Facade Pattern','Observer Pattern','Strategy Pattern','MVC Architectural Pattern','Publish-Subscribe Pattern','Applying Patterns in Java']},{name:'Software Testing & Project Management',topics:['Introduction to Software Testing','Unit Testing','Integration Testing','System Testing','Acceptance Testing','Manual Testing','Automation Testing','Regression Testing','Performance Testing','Test Case Design Techniques','Project Planning and Scheduling','Work Breakdown Structure','Gantt Charts','Risk Management','JIRA for Project Management']}]},OS:{label:'Operating Systems',units:[{name:'Fundamentals of Operating Systems',topics:['Computer Systems Overview','Components Architecture and Functions','Evolution of OS','OS Structures','Monolithic Architecture','Layered Architecture','Microkernel','Modular Approaches','System Calls and OS Services','User and Kernel Modes','System Programs and Utilities','OS Design and Implementation','Best Practices']},{name:'Process & Thread Management',topics:['Process Concepts and States','Process Control Block (PCB)','Operations on Processes','Process Creation and Termination','Threads','Threading Models 1:1','Threading Models N:1','Threading Models M:N','Advantages of Multithreading','Threading Issues','IPC','Shared Memory','Message Passing']},{name:'CPU Scheduling & Synchronization',topics:['Scheduling Criteria','FCFS Algorithm','SJF Algorithm','Round Robin Algorithm','Priority Scheduling','Multilevel Queue Scheduling','Critical Section Problem','Semaphores','Mutexes','Monitors','Spinlocks','Livelocks','Producer-Consumer Problem','Deadlocks - Conditions','Deadlocks - Prevention','Deadlocks - Avoidance','Deadlocks - Detection and Recovery']},{name:'Memory Management & Virtual Memory',topics:['Memory Management Overview','Contiguous Allocation','Non-contiguous Allocation','Paging','Page Tables','TLBs','Segmentation','Segmentation with Paging','Virtual Memory Concepts','Demand Paging','Copy-on-Write','FIFO Page Replacement','LRU Page Replacement','Optimal Page Replacement','Thrashing','Working Set Model','Frame Allocation Strategies']},{name:'Storage & File System Management',topics:['Disk Structures','Disk Scheduling - FCFS','Disk Scheduling - SSTF','Disk Scheduling - SCAN','Disk Scheduling - C-SCAN','File Systems Architecture','Implementation','Directory Structures','File Access Methods','File Sharing and Protection','Free Space - Bitmaps','Free Space - Linked Lists','Device Management','Kernel I/O Interface','Application I/O Interface','RAID Levels','Storage Virtualization']}]},FODS:{label:'Foundations of Data Science',units:[{name:'Introduction',topics:['Data Science Benefits and uses','Facets of data','Data Science Process Overview','Defining research goals','Retrieving data','Data preparation','Exploratory Data Analysis (EDA)','Building the model','Presenting findings','Building applications','Data Mining','Data Warehousing']},{name:'Data Collection, Cleaning & Preparation',topics:['Data Collection - Surveys','Data Collection - APIs','Data Collection - Scraping','Data Collection - Logs','Handling Missing Values','Handling Duplicates','Handling Outliers','Normalization','Scaling','One-Hot Encoding','Label Encoding','Handling Textual Data','Handling Categorical Data','Feature Engineering Basics','Date-Time Features','Aggregations and Binning']},{name:'Describing Data',topics:['Types of Data','Types of Variables','Describing Data with Tables','Describing Data with Graphs','Describing Data with Averages','Describing Variability','Normal Distributions','Standard z Scores']},{name:'Describing Relationships',topics:['Correlation','Scatter plots','Correlation coefficient','Computational formula for correlation','Regression','Regression line','Least squares regression line','Standard error of estimate','Interpretation of r2','Multiple regression equations','Regression towards the mean','Principal component analysis']},{name:'Data Visualization & Interpretation',topics:['Principles of Visualization','Line charts','Bar charts','Histograms','Boxplot','Heatmap','Scatterplot','Categorical vs Numerical Data','Python - Matplotlib','Python - Seaborn','Tableau basics','Excel for visualization','Dashboarding Concepts','Visual Storytelling']}]}};
+
+const COURSES=Object.keys(DATA);
+const ROASTS={0:{t:'0%. ZERO. Not even started. A topper who skips studying is just a title with no content.',c:'rgba(255,68,68,0.1)',b:'rgba(255,68,68,0.3)',tx:'#ff6b6b'},10:{t:"10%? One topic and a nap. Your ego wrote a cheque your prep can't cash. Start.",c:'rgba(255,68,68,0.1)',b:'rgba(255,68,68,0.3)',tx:'#ff6b6b'},20:{t:"20%. The textbook is open. That's progress. But you're 80% away from done.",c:'rgba(255,149,0,0.1)',b:'rgba(255,149,0,0.3)',tx:'#ff9500'},30:{t:"30%. Some momentum. Still in the danger zone. The exam date doesn't care about your excuses.",c:'rgba(255,149,0,0.1)',b:'rgba(255,149,0,0.3)',tx:'#ff9500'},40:{t:"40%. Almost half. Almost isn't a grade. Push through.",c:'rgba(255,149,0,0.1)',b:'rgba(255,149,0,0.3)',tx:'#ff9500'},50:{t:'50%. Exactly halfway. The second half is what separates toppers from the rest. Choose.',c:'rgba(255,149,0,0.1)',b:'rgba(255,149,0,0.3)',tx:'#ff9500'},60:{t:"60%. The ego has receipts now. Don't let up.",c:'rgba(200,255,0,0.08)',b:'rgba(200,255,0,0.25)',tx:'#c8ff00'},70:{t:'70%. Solid. The lazy version of you is losing. Good. Keep going.',c:'rgba(200,255,0,0.08)',b:'rgba(200,255,0,0.25)',tx:'#c8ff00'},80:{t:'80%. Top tier territory. This is what doing the work actually looks like.',c:'rgba(68,204,68,0.1)',b:'rgba(68,204,68,0.3)',tx:'#44cc44'},90:{t:"90%! Almost a complete sweep. That last 10% is your signature. Don't leave it blank.",c:'rgba(68,204,68,0.1)',b:'rgba(68,204,68,0.3)',tx:'#44cc44'},100:{t:'100%. FULL UNIT CLEARED. Certified. Now do this for every single unit.',c:'rgba(68,204,68,0.15)',b:'rgba(68,204,68,0.4)',tx:'#44cc44'}};
+
+function initState(){const saved=localStorage.getItem('sem4_ego_v2');if(saved){try{return JSON.parse(saved);}catch(e){}}const s={};COURSES.forEach(c=>{s[c]=DATA[c].units.map(u=>({name:u.name,subtopics:u.topics.map(t=>({name:t,status:0}))}));});return s;}
+let state=initState(),aC='LANT',aU=0,chartInst=null;
+function save(){try{localStorage.setItem('sem4_ego_v2',JSON.stringify(state));}catch(e){}}
+const stScore=s=>s.status===2?100:s.status===1?50:0;
+const unitScore=(c,u)=>{const s=state[c][u].subtopics;return s.length?Math.round(s.reduce((a,t)=>a+stScore(t),0)/s.length):0;};
+const courseScore=c=>Math.round(state[c].reduce((a,_,i)=>a+unitScore(c,i),0)/state[c].length);
+const overallScore=()=>Math.round(COURSES.reduce((a,c)=>a+courseScore(c),0)/COURSES.length);
+const totalDone=()=>COURSES.reduce((a,c)=>a+state[c].reduce((b,u)=>b+u.subtopics.filter(s=>s.status===2).length,0),0);
+const totalSTs=()=>COURSES.reduce((a,c)=>a+state[c].reduce((b,u)=>b+u.subtopics.length,0),0);
+const pipCol=sc=>sc===0?'#ff4444':sc<60?'#ff9500':'#44cc44';
+const scoreCol=sc=>sc<40?'#ff4444':sc<70?'#ff9500':'#44cc44';
+function render(){renderMetrics();renderCTabs();renderUTabs();renderPanel();renderChart();renderRoast();}
+function renderMetrics(){const ov=overallScore(),td=totalDone(),ts=totalSTs();document.getElementById('overall-pct').textContent=ov+'%';document.getElementById('metrics').innerHTML='<div class="mc"><div class="mv" style="color:'+scoreCol(ov)+'">'+ov+'%</div><div class="ml">Overall</div></div><div class="mc"><div class="mv" style="color:#44cc44">'+td+'</div><div class="ml">Done</div></div><div class="mc"><div class="mv" style="color:#888">'+(ts-td)+'</div><div class="ml">Remaining</div></div>';}
+function renderCTabs(){document.getElementById('ctabs').innerHTML=COURSES.map(c=>'<button class="ctab '+(c===aC?'active':'')+'" onclick="swC(\''+c+'\')">'+c+' <span style="opacity:0.7;font-size:10px">'+courseScore(c)+'%</span></button>').join('');}
+function renderUTabs(){document.getElementById('utabs').innerHTML=state[aC].map((_,i)=>{const sc=unitScore(aC,i);return'<button class="utab '+(i===aU?'active':'')+'" onclick="swU('+i+')">U'+(i+1)+'<span class="pip" style="background:'+pipCol(sc)+'"></span></button>';}).join('');document.getElementById('cinfo').textContent=DATA[aC].label;}
+function renderPanel(){const unit=state[aC][aU],sc=unitScore(aC,aU);document.getElementById('ptitle').textContent='U'+(aU+1)+' \u2014 '+unit.name;const b=document.getElementById('uscore');b.textContent=sc+'%';b.style.color=scoreCol(sc);const f=document.getElementById('pfill');f.style.width=sc+'%';f.style.background=scoreCol(sc);document.getElementById('stlist').innerHTML=unit.subtopics.map((s,i)=>{const cls=['sn','sp','sd'][s.status];const rowCls=s.status===2?'done-row':s.status===1?'prog-row':'';const lbl=['NOT STARTED','IN PROGRESS','DONE'][s.status];return'<div class="strow '+rowCls+'"><span class="stnum">'+String(i+1).padStart(2,'0')+'</span><span class="stname">'+s.name+'</span><button class="stbtn '+cls+'" onclick="cycleST('+i+')">'+lbl+'</button></div>';}).join('');}
+function renderChart(){document.getElementById('clbl').textContent=aC+' \u2014 UNIT PROGRESS';const labels=state[aC].map((_,i)=>'U'+(i+1));const done=state[aC].map((_,i)=>{const s=state[aC][i].subtopics;return s.length?Math.round(s.filter(t=>t.status===2).length/s.length*100):0;});const part=state[aC].map((_,i)=>{const s=state[aC][i].subtopics;return s.length?Math.round(s.filter(t=>t.status===1).length/s.length*100):0;});const none=state[aC].map((_,i)=>{const s=state[aC][i].subtopics;return s.length?Math.round(s.filter(t=>t.status===0).length/s.length*100):0;});if(chartInst)chartInst.destroy();chartInst=new Chart(document.getElementById('ch'),{type:'bar',data:{labels:labels,datasets:[{label:'Done',data:done,backgroundColor:'#44cc44',borderRadius:4,stack:'s'},{label:'In progress',data:part,backgroundColor:'#ff9500',borderRadius:0,stack:'s'},{label:'Not started',data:none,backgroundColor:'#ff4444',borderRadius:0,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.raw+'%';}},backgroundColor:'#1f1f1f',borderColor:'#383838',borderWidth:1,titleColor:'#f0f0f0',bodyColor:'#888'}},scales:{x:{stacked:true,ticks:{font:{size:11,family:'Space Mono'},color:'#555'},grid:{display:false},border:{color:'#2a2a2a'}},y:{stacked:true,min:0,max:100,ticks:{callback:function(v){return v+'%';},font:{size:10,family:'Space Mono'},color:'#555'},grid:{color:'#1f1f1f'},border:{color:'#2a2a2a'}}}}});}
+function renderRoast(){const sc=unitScore(aC,aU);const r=ROASTS[Math.min(Math.floor(sc/10)*10,100)];const el=document.getElementById('roast');el.style.background=r.c;el.style.borderColor=r.b;el.style.color=r.tx;el.textContent=r.t;}
+function cycleST(i){state[aC][aU].subtopics[i].status=(state[aC][aU].subtopics[i].status+1)%3;save();render();}
+function addST(){const v=document.getElementById('newst').value.trim();if(!v)return;state[aC][aU].subtopics.push({name:v,status:0});document.getElementById('newst').value='';save();render();}
+document.getElementById('newst').addEventListener('keydown',function(e){if(e.key==='Enter')addST();});
+function swC(c){aC=c;aU=0;render();}
+function swU(u){aU=u;render();}
+render();
+</script>
+</body>
+</html>

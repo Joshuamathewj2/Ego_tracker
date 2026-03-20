@@ -12,9 +12,9 @@
 html{background:var(--bg);color:var(--text);font-family:var(--font-body);}
 body{min-height:100vh;padding-bottom:2rem;}
 .topbar{position:sticky;top:0;z-index:100;background:rgba(13,13,13,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;}
-.logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
-.logo svg{height:32px;width:auto;border-radius:8px;}
-.topbar-title{font-family:var(--font-mono);font-size:13px;color:var(--accent);letter-spacing:0.05em;}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo{width:32px;height:32px;object-fit:contain;border-radius:4px;}
+.topbar-title{font-family:var(--font-mono);font-size:13px;color:var(--accent);letter-spacing:0.05em;text-transform:uppercase;}
 .topbar-score{font-family:var(--font-mono);font-size:13px;color:var(--text2);}
 .topbar-score span{color:var(--accent);font-weight:700;}
 .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin-bottom:16px;}
@@ -73,21 +73,9 @@ body{min-height:100vh;padding-bottom:2rem;}
 </head>
 <body>
 <div class="topbar">
-  <div class="logo">
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="200" fill="#0d0d0d" rx="12"/>
-      <rect x="44" y="118" width="16" height="28" fill="#1e3a10"/>
-      <rect x="66" y="100" width="16" height="46" fill="#3a6b1e"/>
-      <rect x="88" y="78" width="16" height="68" fill="#5a9e2e"/>
-      <rect x="110" y="54" width="16" height="92" fill="#7cc04b"/>
-      <rect x="132" y="32" width="16" height="114" fill="#9ed96a"/>
-      <rect x="52" y="40" width="6" height="120" fill="#0d0d0d"/>
-      <rect x="52" y="40" width="56" height="6" fill="#0d0d0d"/>
-      <rect x="52" y="97" width="42" height="6" fill="#0d0d0d"/>
-      <rect x="52" y="154" width="56" height="6" fill="#0d0d0d"/>
-      <text x="100" y="188" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="700" fill="#7cc04b" text-anchor="middle" letter-spacing="3">EGO TRACKER</text>
-    </svg>
-    <span class="topbar-title">// SEM_IV</span>
+  <div class="logo-wrap">
+    <img src="Ego%20Tracker%20logo%20design.png" alt="Ego Tracker Logo" class="logo">
+    <span class="topbar-title">EGO TRACKER</span>
   </div>
   <span class="topbar-score">OVERALL: <span id="overall-pct">0%</span></span>
 </div>

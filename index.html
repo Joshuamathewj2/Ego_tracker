@@ -5,10 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Sem IV — Ego Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-<link rel="icon" type="image/png" href="Ego Tracker logo design.png"/>
-<link rel="apple-touch-icon" href="Ego Tracker logo design.png"/>
-<meta name="theme-color" content="#0d0d0d"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root{--bg:#0d0d0d;--bg2:#161616;--bg3:#1f1f1f;--border:#2a2a2a;--border2:#383838;--text:#f0f0f0;--text2:#888;--text3:#555;--accent:#c8ff00;--red:#ff4444;--orange:#ff9500;--green:#44cc44;--red-bg:rgba(255,68,68,0.12);--orange-bg:rgba(255,149,0,0.12);--green-bg:rgba(68,204,68,0.12);--font-mono:'Space Mono',monospace;--font-body:'DM Sans',sans-serif;--radius:10px;--radius-sm:6px;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -72,12 +69,20 @@ body{min-height:100vh;padding-bottom:2rem;}
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+#loading-screen {position: fixed; inset: 0; z-index: 9999; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s;}
+#loading-screen img {width: 120px; height: 120px; object-fit: contain; margin-bottom: 24px; animation: pulse 2s infinite ease-in-out;}
+#loading-screen .loading-text {font-family: var(--font-mono); font-size: 14px; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; text-align: center;}
+@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.7; } }
 </style>
 </head>
 <body>
+<div id="loading-screen">
+  <img src="logo.png" alt="Ego Tracker Logo">
+  <div class="loading-text">feed you will to win</div>
+</div>
 <div class="topbar">
   <div class="logo-wrap">
-    <img src="Ego%20Tracker%20logo%20design.png" alt="Ego Tracker Logo" class="logo">
+    <img src="logo.png" alt="Ego Tracker Logo" class="logo">
     <span class="topbar-title">EGO TRACKER</span>
   </div>
   <span class="topbar-score">OVERALL: <span id="overall-pct">0%</span></span>
@@ -142,6 +147,7 @@ document.getElementById('newst').addEventListener('keydown',function(e){if(e.key
 function swC(c){aC=c;aU=0;render();}
 function swU(u){aU=u;render();}
 render();
+window.addEventListener('load', () => { setTimeout(() => { const ls = document.getElementById('loading-screen'); if(ls) { ls.style.opacity = '0'; ls.style.visibility = 'hidden'; } }, 2000); });
 </script>
 </body>
 </html>

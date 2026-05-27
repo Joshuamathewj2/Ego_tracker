@@ -69,29 +69,12 @@ body{min-height:100vh;padding-bottom:2rem;}
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-
-/* ── CELEBRATION MODAL ── */
-.cel-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center;padding:20px;}
-.cel-bg.open{display:flex;}
-.cel-box{background:var(--bg2);border:1px solid #c8ff0055;border-radius:16px;padding:32px 28px;max-width:400px;width:100%;text-align:center;position:relative;box-shadow:0 0 60px rgba(200,255,0,0.08);}
-.cel-stars{font-size:36px;letter-spacing:4px;margin-bottom:16px;}
-.cel-title{font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--accent);letter-spacing:0.06em;margin-bottom:8px;}
-.cel-sub{font-family:var(--font-mono);font-size:11px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:20px;}
-.cel-msg{font-size:14px;color:var(--text2);line-height:1.75;margin-bottom:24px;font-family:var(--font-body);}
-.cel-msg strong{color:var(--text);font-weight:600;}
-.cel-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px;}
-.cel-stat{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 6px;}
-.cel-stat-val{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--accent);}
-.cel-stat-lbl{font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:0.05em;}
-.cel-quote{background:rgba(200,255,0,0.05);border:1px solid rgba(200,255,0,0.15);border-radius:8px;padding:12px 16px;margin-bottom:22px;font-family:var(--font-mono);font-size:12px;color:var(--accent);line-height:1.6;letter-spacing:0.01em;}
-.cel-close{font-family:var(--font-mono);font-size:12px;font-weight:700;padding:10px 28px;border-radius:8px;border:1px solid var(--accent);background:rgba(200,255,0,0.1);color:var(--accent);cursor:pointer;letter-spacing:0.06em;transition:all 0.15s;}
-.cel-close:hover{background:rgba(200,255,0,0.2);}
 </style>
 </head>
 <body>
 <div class="topbar">
   <div class="logo-wrap">
-    <img src="Ego%20Tracker%20logo%20design.png" alt="Ego Tracker Logo" class="logo">
+    <img src="logo.png" alt="Ego Tracker Logo" class="logo">
     <span class="topbar-title">EGO TRACKER</span>
   </div>
   <span class="topbar-score">OVERALL: <span id="overall-pct">0%</span></span>
@@ -126,23 +109,6 @@ body{min-height:100vh;padding-bottom:2rem;}
   </div>
   <div class="roast" id="roast"></div>
 </div>
-<div class="cel-bg" id="cel-bg">
-  <div class="cel-box">
-    <div class="cel-stars">&#9733; &#9733; &#9733;</div>
-    <div class="cel-title">MISSION COMPLETE</div>
-    <div class="cel-sub">Sem IV — Full Coverage Achieved</div>
-    <div class="cel-msg">
-      Every unit. Every subtopic. Every course.<br/>
-      <strong>You actually did it.</strong><br/><br/>
-      The procrastination, the guilt, the "I'll study tomorrow" — all of that is behind you now.
-      This is what it looks like when ego meets execution.
-      Walk into that exam hall knowing you left nothing on the table.
-    </div>
-    <div class="cel-stats" id="cel-stats"></div>
-    <div class="cel-quote" id="cel-quote"></div>
-    <button class="cel-close" onclick="closeCel()">CLOSE &amp; KEEP GOING</button>
-  </div>
-</div>
 <script>
 const DATA={LANT:{label:'Linear Algebra & Number Theory',units:[{name:'Vector Spaces',topics:['Vector Spaces','Subspaces','Linear combinations','Linear system of equations','Linear independence','Linear dependence','Bases','Dimensions']},{name:'Linear Transformation & Diagonalization',topics:['Linear transformation','Null spaces and ranges','Dimension theorem','Matrix representation','Eigenvalues','Eigenvectors','Diagonalizability']},{name:'Inner Product Spaces',topics:['Inner product','Norms','Gram-Schmidt orthogonalization','Adjoint of linear operations','Least square approximation']},{name:'Divisibility Theory & Canonical Decompositions',topics:['Division algorithm','Base b representations','Number patterns','Prime and composite numbers','GCD','Euclidean algorithm','Fundamental theorem of arithmetic','LCM']},{name:'Diophantine Equations & Multiplicative Functions',topics:['Linear Diophantine equations','Congruences','Linear Congruences','Divisibility tests','Modular exponentiation','Chinese remainder theorem',"Wilson's theorem","Fermat's little theorem","Euler's theorem","Euler's Phi functions",'Tau and Sigma functions']}]},MPMC:{label:'Microprocessor & Microcontrollers',units:[{name:'The 8086 Microprocessor',topics:['Introduction to 8086','Microprocessor architecture','Addressing modes','Instruction set','Assembler directives','Assembly language programming','Modular Programming','Linking and Relocation','Stacks','Procedures','Macros','Interrupts and ISR','Byte and String Manipulation']},{name:'8086 System Bus Structure',topics:['8086 signals','Basic configurations','System bus timing','System design using 8086','IO programming','Introduction to Multiprogramming','System Bus Structure','Multiprocessor configurations','Coprocessor','Closely coupled configurations','Loosely coupled configurations']},{name:'8051 Microcontrollers',topics:['Microprocessor vs Microcontroller','Architecture of 8051','Special Function Registers (SFRs)','I/O Pins Ports and Circuits','Instruction set of 8051','Addressing modes of 8051','Assembly language programming for 8051']},{name:'Interfacing & Programming 8051',topics:['Programming 8051 using SFRs','Timers','Serial Port Programming','Interrupts Programming','LCD Interfacing','Keyboard Interfacing','ADC Interfacing','DAC Interfacing','Sensor Interfacing','External Memory Interface','Stepper Motor','Waveform generation']},{name:'Advanced Processors & System Design',topics:['Advanced processors overview','Advanced microcontrollers','Introduction to FPGA','RISC vs CISC','Traffic light control case study','Washing machine control','Temperature control system']}]},DAA:{label:'Design & Analysis of Algorithms',units:[{name:'Introduction',topics:['Notion of an Algorithm','Fundamentals of Problem Solving','Important Problem Types','Algorithmic Efficiency Analysis','Asymptotic Notations','Analysis Framework','Empirical analysis','Mathematical analysis - Recursive','Mathematical analysis - Non-recursive',"Master's Theorem"]},{name:'Brute Force & Graph Algorithms',topics:['Brute Force technique','Computation of a^n','String Matching','Closest-Pair Problem','Convex-Hull Problem','Exhaustive Search','TSP - Brute Force','Knapsack - Brute Force','Assignment problem','Graph Representations','MST - Kruskal','MST - Prim','Bellman-Ford','Dijkstra','Floyd-Warshall']},{name:'Algorithm Design Techniques',topics:['Divide and Conquer','Finding max and min','Merge sort','Quick sort','DP - Principle of Optimality','Elements of dynamic programming','Matrix-chain multiplication','Multi stage graph','Optimal Binary Search Trees','Greedy Technique','Activity-selection problem','Optimal Merge pattern','Huffman Trees']},{name:'State Space Search Algorithms',topics:['Backtracking concept','n-Queens problem','Hamiltonian Circuit Problem','Subset Sum Problem','Graph colouring problem','Branch and Bound concept','15-Puzzle problem','Assignment problem - B&B','Knapsack - B&B','TSP - B&B']},{name:'NP-Complete & Approximation Algorithms',topics:['Tractable vs intractable problems','Polynomial time algorithms','Venn diagram representation','Lower Bound arguments','NP-algorithms','NP-hardness','NP-completeness','SAT problem','Approximation Algorithms','TSP approximation','Knapsack approximation']}]},OOSE:{label:'Object Oriented Software Engineering',units:[{name:'Software Engineering Principles & Models',topics:['Overview of Software Engineering','SDLC - Waterfall Model','SDLC - Incremental Model','SDLC - Spiral Model','SDLC - V-Model','Agile Software Development','Lean Software Development','Modularity','Reusability','Maintainability and Scalability']},{name:'Agile Software Development',topics:['Agile Manifesto and Principles','Scrum - Roles','Scrum - Artifacts','Scrum - Events','Kanban','Lean Software Development','Extreme Programming (XP)','TDD','Pair Programming','Agile Estimation Techniques','Story Points','Planning Poker','Velocity','Burn-down and Burn-up Charts','Agile Sprint simulation']},{name:'Requirements Modeling Using UML',topics:['Requirement Elicitation','SRS Document','Introduction to UML','Use Case Diagrams','Class Diagrams','Object Diagrams','Sequence Diagrams','Activity Diagrams','State Machine Diagrams','UML Modeling Tools']},{name:'Software Design Patterns Using Java',topics:['SOLID Principles','Overview of Design Patterns','Singleton Pattern','Factory Method Pattern','Adapter Pattern','Facade Pattern','Observer Pattern','Strategy Pattern','MVC Architectural Pattern','Publish-Subscribe Pattern','Applying Patterns in Java']},{name:'Software Testing & Project Management',topics:['Introduction to Software Testing','Unit Testing','Integration Testing','System Testing','Acceptance Testing','Manual Testing','Automation Testing','Regression Testing','Performance Testing','Test Case Design Techniques','Project Planning and Scheduling','Work Breakdown Structure','Gantt Charts','Risk Management','JIRA for Project Management']}]},OS:{label:'Operating Systems',units:[{name:'Fundamentals of Operating Systems',topics:['Computer Systems Overview','Components Architecture and Functions','Evolution of OS','OS Structures','Monolithic Architecture','Layered Architecture','Microkernel','Modular Approaches','System Calls and OS Services','User and Kernel Modes','System Programs and Utilities','OS Design and Implementation','Best Practices']},{name:'Process & Thread Management',topics:['Process Concepts and States','Process Control Block (PCB)','Operations on Processes','Process Creation and Termination','Threads','Threading Models 1:1','Threading Models N:1','Threading Models M:N','Advantages of Multithreading','Threading Issues','IPC','Shared Memory','Message Passing']},{name:'CPU Scheduling & Synchronization',topics:['Scheduling Criteria','FCFS Algorithm','SJF Algorithm','Round Robin Algorithm','Priority Scheduling','Multilevel Queue Scheduling','Critical Section Problem','Semaphores','Mutexes','Monitors','Spinlocks','Livelocks','Producer-Consumer Problem','Deadlocks - Conditions','Deadlocks - Prevention','Deadlocks - Avoidance','Deadlocks - Detection and Recovery']},{name:'Memory Management & Virtual Memory',topics:['Memory Management Overview','Contiguous Allocation','Non-contiguous Allocation','Paging','Page Tables','TLBs','Segmentation','Segmentation with Paging','Virtual Memory Concepts','Demand Paging','Copy-on-Write','FIFO Page Replacement','LRU Page Replacement','Optimal Page Replacement','Thrashing','Working Set Model','Frame Allocation Strategies']},{name:'Storage & File System Management',topics:['Disk Structures','Disk Scheduling - FCFS','Disk Scheduling - SSTF','Disk Scheduling - SCAN','Disk Scheduling - C-SCAN','File Systems Architecture','Implementation','Directory Structures','File Access Methods','File Sharing and Protection','Free Space - Bitmaps','Free Space - Linked Lists','Device Management','Kernel I/O Interface','Application I/O Interface','RAID Levels','Storage Virtualization']}]},FODS:{label:'Foundations of Data Science',units:[{name:'Introduction',topics:['Data Science Benefits and uses','Facets of data','Data Science Process Overview','Defining research goals','Retrieving data','Data preparation','Exploratory Data Analysis (EDA)','Building the model','Presenting findings','Building applications','Data Mining','Data Warehousing']},{name:'Data Collection, Cleaning & Preparation',topics:['Data Collection - Surveys','Data Collection - APIs','Data Collection - Scraping','Data Collection - Logs','Handling Missing Values','Handling Duplicates','Handling Outliers','Normalization','Scaling','One-Hot Encoding','Label Encoding','Handling Textual Data','Handling Categorical Data','Feature Engineering Basics','Date-Time Features','Aggregations and Binning']},{name:'Describing Data',topics:['Types of Data','Types of Variables','Describing Data with Tables','Describing Data with Graphs','Describing Data with Averages','Describing Variability','Normal Distributions','Standard z Scores']},{name:'Describing Relationships',topics:['Correlation','Scatter plots','Correlation coefficient','Computational formula for correlation','Regression','Regression line','Least squares regression line','Standard error of estimate','Interpretation of r2','Multiple regression equations','Regression towards the mean','Principal component analysis']},{name:'Data Visualization & Interpretation',topics:['Principles of Visualization','Line charts','Bar charts','Histograms','Boxplot','Heatmap','Scatterplot','Categorical vs Numerical Data','Python - Matplotlib','Python - Seaborn','Tableau basics','Excel for visualization','Dashboarding Concepts','Visual Storytelling']}]}};
 
@@ -172,49 +138,6 @@ function addST(){const v=document.getElementById('newst').value.trim();if(!v)ret
 document.getElementById('newst').addEventListener('keydown',function(e){if(e.key==='Enter')addST();});
 function swC(c){aC=c;aU=0;render();}
 function swU(u){aU=u;render();}
-
-/* ── CELEBRATION ── */
-const CEL_KEY='sem4_cel_shown';
-const CEL_QUOTES=[
-  "The difference between a topper and the rest is not talent. It is this — what you just did.",
-  "You studied every unit, every subtopic. Your exam knows your name now. Go own it.",
-  "100% prep. 0% excuses. This is what separating yourself from the crowd actually looks like.",
-  "Most people stop at 80% and hope for the best. You went all the way. That is the difference.",
-  "Every roast this tracker threw at you — you answered back with work. That deserves respect.",
-];
-
-function checkCelebration(){
-  const ov=overallScore(), rem=totalSTs()-totalDone();
-  if(ov===100 && rem===0){
-    const alreadyShown=localStorage.getItem(CEL_KEY);
-    if(!alreadyShown){
-      localStorage.setItem(CEL_KEY,'1');
-      showCelebration();
-    }
-  }
-}
-
-function showCelebration(){
-  const ts=totalSTs(), td=totalDone();
-  document.getElementById('cel-stats').innerHTML=
-    '<div class="cel-stat"><div class="cel-stat-val">'+COURSES.length+'</div><div class="cel-stat-lbl">Courses</div></div>'+
-    '<div class="cel-stat"><div class="cel-stat-val">'+COURSES.reduce((a,c)=>a+state[c].length,0)+'</div><div class="cel-stat-lbl">Units</div></div>'+
-    '<div class="cel-stat"><div class="cel-stat-val">'+td+'</div><div class="cel-stat-lbl">Topics</div></div>';
-  document.getElementById('cel-quote').textContent=
-    '\u201C'+CEL_QUOTES[Math.floor(Math.random()*CEL_QUOTES.length)]+'\u201D';
-  document.getElementById('cel-bg').classList.add('open');
-}
-
-function closeCel(){document.getElementById('cel-bg').classList.remove('open');}
-// allow reopening via clicking bg
-document.addEventListener('DOMContentLoaded',function(){
-  document.getElementById('cel-bg').addEventListener('click',function(e){if(e.target===this)closeCel();});
-});
-
-// patch render to check celebration after every update
-const _render=render;
-function render(){_render();checkCelebration();}
-
 render();
 </script>
 </body>
